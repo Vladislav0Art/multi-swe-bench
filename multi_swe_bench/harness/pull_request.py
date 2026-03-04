@@ -140,6 +140,9 @@ class Base:
     label: str
     ref: str
     sha: str
+    # Metamorphic transformation applied on the base commit (i.e., this `sha`).
+    # This patch is expected to be applied within the `prepare.sh` script of a given Instance, if present.
+    metamorphic_base_patch: str | None = None
 
     def __post_init__(self):
         if not isinstance(self.label, str):
@@ -148,6 +151,8 @@ class Base:
             raise ValueError(f"Invalid ref: {self.ref}")
         if not isinstance(self.sha, str):
             raise ValueError(f"Invalid sha: {self.sha}")
+        if self.metamorphic_base_patch is not None and not isinstance(self.metamorphic_base_patch, str):
+            raise ValueError(f"Invalid metamorphic_base_patch: {self.metamorphic_base_patch}")
 
     @classmethod
     def from_dict(cls, d: dict) -> "Base":
@@ -171,41 +176,13 @@ class Base:
 @dataclass_json
 @dataclass
 class PullRequest(PullRequestBase):
-    """
-    Represents a pull request in a version control system.
-
-    Attributes:
-    state: The current state of the pull request (e.g., 'open' or 'closed').
-    title: The title of the pull request.
-    body: The description or body text of the pull request (optional).
-    base: The base branch or details against which the pull request is made.
-    resolved_issues: A list of issues resolved by this pull request.
-    fix_patch: The fix patch associated with the pull request.
-    test_patch: The test patch associated with the pull request.
-    metamorphic_base_patch: base commit + metamorphic modifications (optional).
-    metamorphic_fix_patch: base commit + fix.patch + test.patch + metamorphic modifications (optional).
-
-    Methods:
-    __post_init__:
-        Verifies that all public attributes of the object are valid. Raises a ValueError if invalid data is found.
-
-    from_dict:
-        Creates a PullRequest object from a dictionary.
-
-    from_json:
-        Creates a PullRequest object from a JSON string.
-    """
     state: str
     title: str
     body: Optional[str]
     base: Base
     resolved_issues: list[ResolvedIssue]
-    # normal patches
     fix_patch: str
     test_patch: str
-    # patches with metamorphic modifications
-    metamorphic_base_patch: str | None = None
-    metamorphic_fix_patch:  str | None = None
     tag: str = ""
     number_interval: str = ""
     lang: str = ""

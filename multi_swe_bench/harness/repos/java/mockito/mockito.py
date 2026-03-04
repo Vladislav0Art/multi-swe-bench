@@ -96,7 +96,6 @@ class MockitoImageDefault(Image):
 
     def files(self) -> list[File]:
         return [
-            # normal patches
             File(
                 ".",
                 "fix.patch",
@@ -107,10 +106,6 @@ class MockitoImageDefault(Image):
                 "test.patch",
                 f"{self.pr.test_patch}",
             ),
-            # metamorphic patches
-            Metamorphic.base_patch(self.pr),
-            Metamorphic.fix_patch(self.pr),
-            # scripts
             File(
                 ".",
                 "check_git_changes.sh",
@@ -135,20 +130,23 @@ exit 0
             File(
                 ".",
                 "prepare.sh",
-                """#!/bin/bash
+                f"""#!/bin/bash
 set -e
 
-cd /home/{pr.repo}
+cd /home/{self.pr.repo}
 git reset --hard
 bash /home/check_git_changes.sh
-git checkout {pr.base.sha}
+git checkout {self.pr.base.sha}
+
+# apply metamorphic patch (if present)
+{Metamorphic.apply_metamorphic_patch_cmd(pr=self.pr)}
+
 bash /home/check_git_changes.sh
 
 ./gradlew build || true
 
-""".format(pr=self.pr),
+"""
             ),
-            # applying patches and run tests
             File(
                 ".",
                 "run.sh",
@@ -184,9 +182,6 @@ git apply /home/test.patch /home/fix.patch
 
 """.format(pr=self.pr),
             ),
-        # applying metamorphic patches and run tests
-            Metamorphic.base_run(self.pr),
-            Metamorphic.fix_run(self.pr),
         ]
 
     def dockerfile(self) -> str:
@@ -268,20 +263,6 @@ class Mockito(Instance):
     def dependency(self) -> Optional[Image]:
         return MockitoImageDefault(self.pr, self._config)
 
-    # metamorphic run scripts
-    def metamorphic_run(self, metamorphic_run_cmd: str = "") -> str:
-        if metamorphic_run_cmd:
-            return metamorphic_run_cmd
-
-        return "bash /home/metamorphic-run.sh"
-
-    def metamorphic_fix_patch_run(self, metamorphic_fix_patch_run_cmd: str = "") -> str:
-        if metamorphic_fix_patch_run_cmd:
-            return metamorphic_fix_patch_run_cmd
-
-        return "bash /home/metamorphic-fix-run.sh"
-
-    # normal run scripts
     def run(self, run_cmd: str = "") -> str:
         if run_cmd:
             return run_cmd
