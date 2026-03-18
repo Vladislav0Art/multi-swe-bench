@@ -1,8 +1,8 @@
 from multi_swe_bench.harness.pull_request import PullRequest
 from multi_swe_bench.harness.image import File
-from sweagent.utils.log import get_logger
+import logging
 
-logger = get_logger("metamorphic")
+logger = logging.getLogger(__name__)
 
 class Metamorphic:
     @staticmethod
@@ -31,7 +31,7 @@ class Metamorphic:
             f"EOF_METAMORPHIC_PATCH\n"
             f"git apply /tmp/metamorphic.patch\n"
             f"rm /tmp/metamorphic.patch\n"
-            
+
             f"git add -A &&"
             f"git -c user.email='mswe-agent@metamorphic.py' -c user.name='metamorphic-transformation-patch' commit -m '{commit_message}'\n"
         )
