@@ -11,11 +11,14 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+from __future__ import annotations
 
 import logging
 import os
 from pathlib import Path
 from typing import Union
+
+from rich.logging import RichHandler
 
 
 def setup_logger(
@@ -105,3 +108,26 @@ def get_non_propagate_logger(
     non_propagate_logger.propagate = False
 
     return non_propagate_logger
+
+
+_SET_UP_LOGGERS = set()
+def get_logger(name: str, log_dir: Path = None) -> logging.Logger:
+    if log_dir is not None:
+        log_dir.mkdir(parents=True, exist_ok=True)
+        name = f"{log_dir.name}_{name}"
+    logger = logging.getLogger(name)
+    if name in _SET_UP_LOGGERS:
+        # Already set up
+        return logger
+    handler = RichHandler(show_time=False, show_path=False)
+    handler.setLevel(logging.DEBUG)
+    if log_dir is not None:
+        file_handler = logging.FileHandler(log_dir / "log")
+        file_handler.setLevel(logging.DEBUG)
+        logger.addHandler(file_handler)
+        handler.setLevel(logging.ERROR)
+    logger.setLevel(logging.DEBUG)
+    logger.addHandler(handler)
+    logger.propagate = False
+    _SET_UP_LOGGERS.add(name)
+    return logger
