@@ -2,7 +2,7 @@ import re
 import json
 from typing import Optional, Union
 
-from multi_swe_bench.harness import Metamorphic
+from multi_swe_bench.harness.metamorphic import Metamorphic
 from multi_swe_bench.harness.image import Config, File, Image
 from multi_swe_bench.harness.instance import Instance, TestResult
 from multi_swe_bench.harness.pull_request import PullRequest
