@@ -695,9 +695,12 @@ class CliArgs:
         self.logger.info(f"Running instance {instance.name()} in directory {instance_dir}")
         self.logger.info(f"Instance fix_patch_run_cmd: `{self.fix_patch_run_cmd}`")
 
+        # NOTE: mount agent's prediction patch into the running docker container
         fix_patch_path = instance_dir.absolute() / "fix.patch"
         with open(fix_patch_path, "w", encoding="utf-8", newline="\n") as f:
             f.write(self.patches[instance.pr.id].fix_patch)
+
+        self.logger.info(f"Mounted agent's prediction patch under {fix_patch_path}: `{self.patches[instance.pr.id].fix_patch[:250]}...`")
 
         report_path = instance_dir / REPORT_FILE
         if report_path.exists():
