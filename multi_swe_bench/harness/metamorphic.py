@@ -24,7 +24,7 @@ class Metamorphic:
         """
         patch = pr.base.metamorphic_base_patch
         if (patch is not None) and (patch != ""):
-            logger.info("Found `metamorphic_base_patch` entry: it will be applied to the base commit")
+            logger.info(f"Found `metamorphic_base_patch` entry: it will be applied to the base commit (`{patch[:150]}...`)")
             return Metamorphic._produce_apply_patch_commands(patch, commit_message)
         return ""
 
