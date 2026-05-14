@@ -2,6 +2,7 @@ import re
 import textwrap
 from typing import Optional, Union
 
+from multi_swe_bench.harness.metamorphic import Metamorphic
 from multi_swe_bench.harness.image import Config, File, Image
 from multi_swe_bench.harness.instance import Instance, TestResult
 from multi_swe_bench.harness.pull_request import PullRequest
@@ -210,27 +211,26 @@ exit 0
             File(
                 ".",
                 "prepare.sh",
-                """#!/bin/bash
+                f"""#!/bin/bash
 set -e
 
-cd /home/{pr.repo}
+cd /home/{self.pr.repo}
 git reset --hard
 bash /home/check_git_changes.sh
-git checkout {pr.base.sha}
+git checkout {self.pr.base.sha}
+
+# apply metamorphic patch (if present)
+{Metamorphic.apply_metamorphic_patch_cmd(pr=self.pr)}
+
 bash /home/check_git_changes.sh
 
-file="/home/{pr.repo}/pom.xml"
-old_version="{old_version}"
-new_version="{new_version}"
+file="/home/{self.pr.repo}/pom.xml"
+old_version="{self.old_version()}"
+new_version="{self.new_version()}"
 sed -i "s/$old_version/$new_version/g" "$file"
 
 mvn clean test -Dmaven.test.skip=false -DfailIfNoTests=false || true
-""".format(
-                    pr=self.pr,
-                    old_version=self.old_version(),
-                    new_version=self.new_version(),
-                ),
-            ),
+"""),
             File(
                 ".",
                 "run.sh",
@@ -407,26 +407,26 @@ exit 0
             File(
                 ".",
                 "prepare.sh",
-                """#!/bin/bash
+                f"""#!/bin/bash
 set -e
 
-cd /home/{pr.repo}
+cd /home/{self.pr.repo}
 git reset --hard
 bash /home/check_git_changes.sh
-git checkout {pr.base.sha}
+git checkout {self.pr.base.sha}
+
+# apply metamorphic patch (if present)
+{Metamorphic.apply_metamorphic_patch_cmd(pr=self.pr)}
+
 bash /home/check_git_changes.sh
 
-file="/home/{pr.repo}/pom.xml"
-old_version="{old_version}"
-new_version="{new_version}"
+file="/home/{self.pr.repo}/pom.xml"
+old_version="{self.old_version()}"
+new_version="{self.old_version()}"
 sed -i "s/$old_version/$new_version/g" "$file"
 
 mvn clean test -Dmaven.test.skip=false -DfailIfNoTests=false || true
-""".format(
-                    pr=self.pr,
-                    old_version=self.old_version(),
-                    new_version=self.new_version(),
-                ),
+"""
             ),
             File(
                 ".",

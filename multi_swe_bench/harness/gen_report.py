@@ -449,7 +449,7 @@ class CliArgs:
                     )
                     if not report.valid:
                         self.logger.error(
-                            f"Invalid report for {task.id}, {report.short_report()}, {report.error_msg}"
+                            f"Invalid eval report for {task.id}, {report.short_report()}, {report.error_msg}"
                         )
                         return (report, False)
 

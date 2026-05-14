@@ -689,6 +689,8 @@ class CliArgs:
             """执行run任务的函数"""
             from multi_swe_bench.utils.session_util import run_and_save_logs
 
+            self.logger.info(f"[build_dataset.py:run_task_run] Running {instance.name()}...")
+
             return asyncio.run(
                 run_and_save_logs(
                     "run",
@@ -740,6 +742,8 @@ class CliArgs:
                     timeout=self.agent_timeout,
                 )
             )
+
+        self.logger.info(f"[build_dataset.py:run_instance] Running {instance.name()}...")
 
         if self.run_log:
             if not self.human_mode:  # envagent mode

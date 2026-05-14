@@ -140,6 +140,9 @@ class Base:
     label: str
     ref: str
     sha: str
+    # Metamorphic transformation applied on the base commit (i.e., this `sha`).
+    # This patch is expected to be applied within the `prepare.sh` script of a given Instance, if present.
+    metamorphic_base_patch: str | None = None
 
     def __post_init__(self):
         if not isinstance(self.label, str):
@@ -148,6 +151,8 @@ class Base:
             raise ValueError(f"Invalid ref: {self.ref}")
         if not isinstance(self.sha, str):
             raise ValueError(f"Invalid sha: {self.sha}")
+        if self.metamorphic_base_patch is not None and not isinstance(self.metamorphic_base_patch, str):
+            raise ValueError(f"Invalid metamorphic_base_patch: {self.metamorphic_base_patch}")
 
     @classmethod
     def from_dict(cls, d: dict) -> "Base":
